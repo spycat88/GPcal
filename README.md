@@ -1,5 +1,5 @@
 # GPcal
-A gamepad calibration tool for the Retroid Pocket 5 and Mini
+A gamepad calibration tool for various handheld gaming devices
 
 ![image](https://raw.githubusercontent.com/cdeletre/GPcal/main/pics/screenshot.jpg)
 

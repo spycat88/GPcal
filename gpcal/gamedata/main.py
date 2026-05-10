@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-    GPcal: a gamepad calibration tool for RP 5/Mini
+    GPcal: a gamepad calibration tool for various handheld gaming devices
     Author: Kdog
     Version: 0.1
     SPDX-License-Identifier: MIT
@@ -23,7 +23,7 @@ TRIGGER_ANTIDEADZONE_PERCENT=80 # 0 to 100 (> 50 to avoid big first step)
 FPS=60
 CALIBRATION_DETECTION_FPS = FPS//2    # 0.5s : minimum time to maintain a stick / trigger in a position
 
-TITLE="Kdog GPcal for RP 5/Mini"
+TITLE="Kdog GPcal"
 
 class GPCalibrate:
     def __init__(self):
@@ -74,7 +74,7 @@ class GPCalibrate:
         ui_panel.add_uiobject(self.button_quit)
 
         # Create the textbox
-        self.ui_textbox_info = UITextbox(20,40,280,30,1,text="Ahoy ! Welcome to Kdog Retroid Pocket Gamepad calibation tool",minshowframe=FPS)
+        self.ui_textbox_info = UITextbox(20,40,280,30,1,text="Ahoy ! Welcome to Kdog Gamepad calibation tool",minshowframe=FPS)
         ui_panel.add_uiobject(self.ui_textbox_info)
 
         self.ui_textbox_data = UITextbox(20,65,280,70,1,text="")

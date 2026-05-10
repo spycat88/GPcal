@@ -10,11 +10,16 @@ import os
 from pathlib import Path
 import math
 
-from Klib.RPocket import RPCalibration
+from Klib.GPcal import GPCalibration
 
 INPUT_SEARCH_PATH="/sys/class/input"
 INPUT_DEV_DIR="/dev/input"
-GAMEPAD_NAME="Retroid Pocket Gamepad"
+GAMEPAD_NAMES = [
+    "Retroid Pocket Gamepad",
+    "AYN Odin2 Gamepad",
+    "AYN Odin3 Gamepad",
+    "MANGMI Air X Joypad"
+]
 
 class UIObject:
     def __init__(self,x=0,y=0,w=320,h=240):
@@ -306,7 +311,7 @@ class UIGamepad(UIPanel):
 
         self.eventpipe = os.open(self.event_path, os.O_RDONLY | os.O_NONBLOCK)
 
-        self.calibration = RPCalibration(default_trigger_max=0x755)
+        self.calibration = GPCalibration(default_trigger_max=0x755)
 
         self.leftx = 0
         self.leftx_min = 0
@@ -334,14 +339,17 @@ class UIGamepad(UIPanel):
         self.triggerleft_max = 0
         self.triggerleft_touched = 0
     
-    def find_event_path(self, gp_name=GAMEPAD_NAME):
+    def find_event_path(self, gp_names=GAMEPAD_NAMES):
         search_path = Path(INPUT_SEARCH_PATH)
+        self.event_path = None
         for sys_event_dir in search_path.glob("event*"):
-            with open(sys_event_dir / "device" / "name", "r") as event_name_file:
-                if event_name_file.readline().strip() == gp_name:
-                    sys_event_dir.stem
-                    self.event_path=Path(INPUT_DEV_DIR) / sys_event_dir.stem
-                    break
+            name_file_path = sys_event_dir / "device" / "name"
+            if name_file_path.exists():
+                with open(name_file_path, "r") as event_name_file:
+                    device_name = event_name_file.readline().strip()
+                    if device_name in gp_names:
+                        self.event_path = Path(INPUT_DEV_DIR) / sys_event_dir.stem
+                        return
     
     def reset_measurements_all(self):
         self.reset_measurements_stickleft()
@@ -372,7 +380,7 @@ class UIGamepad(UIPanel):
         self.triggerright_touched = False
 
     def backup_calibration(self):
-        self.backup_calibration_data = RPCalibration()
+        self.backup_calibration_data = GPCalibration()
 
     def restore_calibration(self):
         self.backup_calibration_data.apply_parameters()

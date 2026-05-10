@@ -1,5 +1,5 @@
 """
-    RPocket: a library for Retroid Pocket (5/Mini)
+    GPcal: a library for various handheld gaming devices
     Author: Kdog
     Version: 0.1
     SPDX-License-Identifier: MIT
@@ -23,90 +23,50 @@ DEFAULT_AXIS_MAX=0x580
 DEFAULT_TRIGGER_MAX=0x755
 
 
-class RPCalibration:
-    def __init__(self, path="/sys/module/retroid/parameters", default_axis_max=DEFAULT_AXIS_MAX, default_trigger_max=DEFAULT_TRIGGER_MAX):
-        self.syspath = Path(path)
-        self.load_parameters()
+class GPCalibration:
+    PARAM_PATHS = [
+        "/sys/module/retroid/parameters",
+        "/sys/module/rsinput/parameters",
+        "/sys/module/mangmi/parameters"
+    ]
+
+    PARAM_NAMES = [
+        "axis_leftx_antideadzone", "axis_leftx_center", "axis_leftx_deadzone", "axis_leftx_max", "axis_leftx_min",
+        "axis_lefty_antideadzone", "axis_lefty_center", "axis_lefty_deadzone", "axis_lefty_max", "axis_lefty_min",
+        "axis_leftz_antideadzone", "axis_leftz_center", "axis_leftz_deadzone", "axis_leftz_max", "axis_leftz_min",
+        "axis_rightx_antideadzone", "axis_rightx_center", "axis_rightx_deadzone", "axis_rightx_max", "axis_rightx_min",
+        "axis_righty_antideadzone", "axis_righty_center", "axis_righty_deadzone", "axis_righty_max", "axis_righty_min",
+        "axis_rightz_antideadzone", "axis_rightz_center", "axis_rightz_deadzone", "axis_rightz_max", "axis_rightz_min",
+        "trigger_left_antideadzone", "trigger_left_deadzone", "trigger_left_max",
+        "trigger_right_antideadzone", "trigger_right_deadzone", "trigger_right_max",
+        "update_params"
+    ]
+
+    def __init__(self, path=None, default_axis_max=DEFAULT_AXIS_MAX, default_trigger_max=DEFAULT_TRIGGER_MAX):
         self.default_axis_max = default_axis_max
         self.default_trigger_max = default_trigger_max
+        if path:
+            self.syspath = Path(path)
+        else:
+            self.syspath = self._find_driver_path()
+        if not self.syspath or not self.syspath.exists():
+            exit(1)
+        self.load_parameters()
+
+    def _find_driver_path(self):
+        for p in self.PARAM_PATHS:
+            parameters = Path(p)
+            if parameters.is_dir():
+                return parameters
+        return None
 
     def load_parameters(self):
         try:
-            with open(self.syspath / "axis_leftx_antideadzone","r") as fparam:
-                self.axis_leftx_antideadzone = int(fparam.readline())
-            with open(self.syspath / "axis_leftx_center","r") as fparam:
-                self.axis_leftx_center = int(fparam.readline())
-            with open(self.syspath / "axis_leftx_deadzone","r") as fparam:
-                self.axis_leftx_deadzone = int(fparam.readline())
-            with open(self.syspath / "axis_leftx_max","r") as fparam:
-                self.axis_leftx_max = int(fparam.readline())
-            with open(self.syspath / "axis_leftx_min","r") as fparam:
-                self.axis_leftx_min = int(fparam.readline())
-            with open(self.syspath / "axis_lefty_antideadzone","r") as fparam:
-                self.axis_lefty_antideadzone = int(fparam.readline())
-            with open(self.syspath / "axis_lefty_center","r") as fparam:
-                self.axis_lefty_center = int(fparam.readline())
-            with open(self.syspath / "axis_lefty_deadzone","r") as fparam:
-                self.axis_lefty_deadzone = int(fparam.readline())
-            with open(self.syspath / "axis_lefty_max","r") as fparam:
-                self.axis_lefty_max = int(fparam.readline())
-            with open(self.syspath / "axis_lefty_min","r") as fparam:
-                self.axis_lefty_min = int(fparam.readline())
-            with open(self.syspath / "axis_leftz_antideadzone","r") as fparam:
-                self.axis_leftz_antideadzone = int(fparam.readline())
-            with open(self.syspath / "axis_leftz_center","r") as fparam:
-                self.axis_leftz_center = int(fparam.readline())
-            with open(self.syspath / "axis_leftz_deadzone","r") as fparam:
-                self.axis_leftz_deadzone = int(fparam.readline())
-            with open(self.syspath / "axis_leftz_max","r") as fparam:
-                self.axis_leftz_max = int(fparam.readline())
-            with open(self.syspath / "axis_leftz_min","r") as fparam:
-                self.axis_leftz_min = int(fparam.readline())
-            with open(self.syspath / "axis_rightx_antideadzone","r") as fparam:
-                self.axis_rightx_antideadzone = int(fparam.readline())
-            with open(self.syspath / "axis_rightx_center","r") as fparam:
-                self.axis_rightx_center = int(fparam.readline())
-            with open(self.syspath / "axis_rightx_deadzone","r") as fparam:
-                self.axis_rightx_deadzone = int(fparam.readline())
-            with open(self.syspath / "axis_rightx_max","r") as fparam:
-                self.axis_rightx_max = int(fparam.readline())
-            with open(self.syspath / "axis_rightx_min","r") as fparam:
-                self.axis_rightx_min = int(fparam.readline())
-            with open(self.syspath / "axis_righty_antideadzone","r") as fparam:
-                self.axis_righty_antideadzone = int(fparam.readline())
-            with open(self.syspath / "axis_righty_center","r") as fparam:
-                self.axis_righty_center = int(fparam.readline())
-            with open(self.syspath / "axis_righty_deadzone","r") as fparam:
-                self.axis_righty_deadzone = int(fparam.readline())
-            with open(self.syspath / "axis_righty_max","r") as fparam:
-                self.axis_righty_max = int(fparam.readline())
-            with open(self.syspath / "axis_righty_min","r") as fparam:
-                self.axis_righty_min = int(fparam.readline())
-            with open(self.syspath / "axis_rightz_antideadzone","r") as fparam:
-                self.axis_rightz_antideadzone = int(fparam.readline())
-            with open(self.syspath / "axis_rightz_center","r") as fparam:
-                self.axis_rightz_center = int(fparam.readline())
-            with open(self.syspath / "axis_rightz_deadzone","r") as fparam:
-                self.axis_rightz_deadzone = int(fparam.readline())
-            with open(self.syspath / "axis_rightz_max","r") as fparam:
-                self.axis_rightz_max = int(fparam.readline())
-            with open(self.syspath / "axis_rightz_min","r") as fparam:
-                self.axis_rightz_min = int(fparam.readline())
-            with open(self.syspath / "trigger_left_antideadzone","r") as fparam:
-                self.trigger_left_antideadzone = int(fparam.readline())
-            with open(self.syspath / "trigger_left_deadzone","r") as fparam:
-                self.trigger_left_deadzone = int(fparam.readline())
-            with open(self.syspath / "trigger_left_max","r") as fparam:
-                self.trigger_left_max = int(fparam.readline())
-            with open(self.syspath / "trigger_right_antideadzone","r") as fparam:
-                self.trigger_right_antideadzone = int(fparam.readline())
-            with open(self.syspath / "trigger_right_deadzone","r") as fparam:
-                self.trigger_right_deadzone = int(fparam.readline())
-            with open(self.syspath / "trigger_right_max","r") as fparam:
-                self.trigger_right_max = int(fparam.readline())
-            with open(self.syspath / "update_params","r") as fparam:
-                self.update_params = int(fparam.readline())
-
+            for param in self.PARAM_NAMES:
+                file_path = self.syspath / param
+                if file_path.exists():
+                    with open(file_path, "r") as f:
+                        setattr(self, param, int(f.readline().strip()))
         except IOError as e:
             print(f"I/O error({e.errno}): {e.strerror}")
             exit(1)
@@ -118,125 +78,22 @@ class RPCalibration:
         with open(savepath,"w") as savefile:
             savefile.write("#!/usr/bin/env bash\n")
             savefile.write("#\n")
-            savefile.write("# Retroid Pocket 5/Mini gamepad calibration\n")
+            savefile.write("# Gamepad calibration\n")
             savefile.write("# Made with the Kdog GPcal tool\n")
             savefile.write("# SPDX-License-Identifier: MIT\n")
             savefile.write("#\n")
-            savefile.write(f"echo {self.axis_leftx_antideadzone} > {self.syspath}/axis_leftx_antideadzone\n")
-            savefile.write(f"echo {self.axis_leftx_center} > {self.syspath}/axis_leftx_center\n")
-            savefile.write(f"echo {self.axis_leftx_deadzone} > {self.syspath}/axis_leftx_deadzone\n")
-            savefile.write(f"echo {self.axis_leftx_max} > {self.syspath}/axis_leftx_max\n")
-            savefile.write(f"echo {self.axis_leftx_min} > {self.syspath}/axis_leftx_min\n")
-            savefile.write(f"echo {self.axis_lefty_antideadzone} > {self.syspath}/axis_lefty_antideadzone\n")
-            savefile.write(f"echo {self.axis_lefty_center} > {self.syspath}/axis_lefty_center\n")
-            savefile.write(f"echo {self.axis_lefty_deadzone} > {self.syspath}/axis_lefty_deadzone\n")
-            savefile.write(f"echo {self.axis_lefty_max} > {self.syspath}/axis_lefty_max\n")
-            savefile.write(f"echo {self.axis_lefty_min} > {self.syspath}/axis_lefty_min\n")
-            savefile.write(f"echo {self.axis_leftz_antideadzone} > {self.syspath}/axis_leftz_antideadzone\n")
-            savefile.write(f"echo {self.axis_leftz_center} > {self.syspath}/axis_leftz_center\n")
-            savefile.write(f"echo {self.axis_leftz_deadzone} > {self.syspath}/axis_leftz_deadzone\n")
-            savefile.write(f"echo {self.axis_leftz_max} > {self.syspath}/axis_leftz_max\n")
-            savefile.write(f"echo {self.axis_leftz_min} > {self.syspath}/axis_leftz_min\n")
-            savefile.write(f"echo {self.axis_rightx_antideadzone} > {self.syspath}/axis_rightx_antideadzone\n")
-            savefile.write(f"echo {self.axis_rightx_center} > {self.syspath}/axis_rightx_center\n")
-            savefile.write(f"echo {self.axis_rightx_deadzone} > {self.syspath}/axis_rightx_deadzone\n")
-            savefile.write(f"echo {self.axis_rightx_max} > {self.syspath}/axis_rightx_max\n")
-            savefile.write(f"echo {self.axis_rightx_min} > {self.syspath}/axis_rightx_min\n")
-            savefile.write(f"echo {self.axis_righty_antideadzone} > {self.syspath}/axis_righty_antideadzone\n")
-            savefile.write(f"echo {self.axis_righty_center} > {self.syspath}/axis_righty_center\n")
-            savefile.write(f"echo {self.axis_righty_deadzone} > {self.syspath}/axis_righty_deadzone\n")
-            savefile.write(f"echo {self.axis_righty_max} > {self.syspath}/axis_righty_max\n")
-            savefile.write(f"echo {self.axis_righty_min} > {self.syspath}/axis_righty_min\n")
-            savefile.write(f"echo {self.axis_rightz_antideadzone} > {self.syspath}/axis_rightz_antideadzone\n")
-            savefile.write(f"echo {self.axis_rightz_center} > {self.syspath}/axis_rightz_center\n")
-            savefile.write(f"echo {self.axis_rightz_deadzone} > {self.syspath}/axis_rightz_deadzone\n")
-            savefile.write(f"echo {self.axis_rightz_max} > {self.syspath}/axis_rightz_max\n")
-            savefile.write(f"echo {self.axis_rightz_min} > {self.syspath}/axis_rightz_min\n")
-            savefile.write(f"echo {self.trigger_left_antideadzone} > {self.syspath}/trigger_left_antideadzone\n")
-            savefile.write(f"echo {self.trigger_left_deadzone} > {self.syspath}/trigger_left_deadzone\n")
-            savefile.write(f"echo {self.trigger_left_max} > {self.syspath}/trigger_left_max\n")
-            savefile.write(f"echo {self.trigger_right_antideadzone} > {self.syspath}/trigger_right_antideadzone\n")
-            savefile.write(f"echo {self.trigger_right_deadzone} > {self.syspath}/trigger_right_deadzone\n")
-            savefile.write(f"echo {self.trigger_right_max} > {self.syspath}/trigger_right_max\n")
+            for param in self.PARAM_NAMES:
+                if param == "update_params": continue
+                val = getattr(self, param)
+                savefile.write(f"echo {val} > {self.syspath}/{param}\n")
             savefile.write(f"echo 1 > {self.syspath}/update_params\n")
 
     def apply_parameters(self):
         self.update_params=1
         try:
-            with open(self.syspath / "axis_leftx_antideadzone","w") as fparam:
-                fparam.write(f"{self.axis_leftx_antideadzone}")
-            with open(self.syspath / "axis_leftx_center","w") as fparam:
-                fparam.write(f"{self.axis_leftx_center}")
-            with open(self.syspath / "axis_leftx_deadzone","w") as fparam:
-                fparam.write(f"{self.axis_leftx_deadzone}")
-            with open(self.syspath / "axis_leftx_max","w") as fparam:
-                fparam.write(f"{self.axis_leftx_max}")
-            with open(self.syspath / "axis_leftx_min","w") as fparam:
-                fparam.write(f"{self.axis_leftx_min}")
-            with open(self.syspath / "axis_lefty_antideadzone","w") as fparam:
-                fparam.write(f"{self.axis_lefty_antideadzone}")
-            with open(self.syspath / "axis_lefty_center","w") as fparam:
-                fparam.write(f"{self.axis_lefty_center}")
-            with open(self.syspath / "axis_lefty_deadzone","w") as fparam:
-                fparam.write(f"{self.axis_lefty_deadzone}")
-            with open(self.syspath / "axis_lefty_max","w") as fparam:
-                fparam.write(f"{self.axis_lefty_max}")
-            with open(self.syspath / "axis_lefty_min","w") as fparam:
-                fparam.write(f"{self.axis_lefty_min}")
-            with open(self.syspath / "axis_leftz_antideadzone","w") as fparam:
-                fparam.write(f"{self.axis_leftz_antideadzone}")
-            with open(self.syspath / "axis_leftz_center","w") as fparam:
-                fparam.write(f"{self.axis_leftz_center}")
-            with open(self.syspath / "axis_leftz_deadzone","w") as fparam:
-                fparam.write(f"{self.axis_leftz_deadzone}")
-            with open(self.syspath / "axis_leftz_max","w") as fparam:
-                fparam.write(f"{self.axis_leftz_max}")
-            with open(self.syspath / "axis_leftz_min","w") as fparam:
-                fparam.write(f"{self.axis_leftz_min}")
-            with open(self.syspath / "axis_rightx_antideadzone","w") as fparam:
-                fparam.write(f"{self.axis_rightx_antideadzone}")
-            with open(self.syspath / "axis_rightx_center","w") as fparam:
-                fparam.write(f"{self.axis_rightx_center}")
-            with open(self.syspath / "axis_rightx_deadzone","w") as fparam:
-                fparam.write(f"{self.axis_rightx_deadzone}")
-            with open(self.syspath / "axis_rightx_max","w") as fparam:
-                fparam.write(f"{self.axis_rightx_max}")
-            with open(self.syspath / "axis_rightx_min","w") as fparam:
-                fparam.write(f"{self.axis_rightx_min}")
-            with open(self.syspath / "axis_righty_antideadzone","w") as fparam:
-                fparam.write(f"{self.axis_righty_antideadzone}")
-            with open(self.syspath / "axis_righty_center","w") as fparam:
-                fparam.write(f"{self.axis_righty_center}")
-            with open(self.syspath / "axis_righty_deadzone","w") as fparam:
-                fparam.write(f"{self.axis_righty_deadzone}")
-            with open(self.syspath / "axis_righty_max","w") as fparam:
-                fparam.write(f"{self.axis_righty_max}")
-            with open(self.syspath / "axis_righty_min","w") as fparam:
-                fparam.write(f"{self.axis_righty_min}")
-            with open(self.syspath / "axis_rightz_antideadzone","w") as fparam:
-                fparam.write(f"{self.axis_rightz_antideadzone}")
-            with open(self.syspath / "axis_rightz_center","w") as fparam:
-                fparam.write(f"{self.axis_rightz_center}")
-            with open(self.syspath / "axis_rightz_deadzone","w") as fparam:
-                fparam.write(f"{self.axis_rightz_deadzone}")
-            with open(self.syspath / "axis_rightz_max","w") as fparam:
-                fparam.write(f"{self.axis_rightz_max}")
-            with open(self.syspath / "axis_rightz_min","w") as fparam:
-                fparam.write(f"{self.axis_rightz_min}")
-            with open(self.syspath / "trigger_left_antideadzone","w") as fparam:
-                fparam.write(f"{self.trigger_left_antideadzone}")
-            with open(self.syspath / "trigger_left_deadzone","w") as fparam:
-                fparam.write(f"{self.trigger_left_deadzone}")
-            with open(self.syspath / "trigger_left_max","w") as fparam:
-                fparam.write(f"{self.trigger_left_max}")
-            with open(self.syspath / "trigger_right_antideadzone","w") as fparam:
-                fparam.write(f"{self.trigger_right_antideadzone}")
-            with open(self.syspath / "trigger_right_deadzone","w") as fparam:
-                fparam.write(f"{self.trigger_right_deadzone}")
-            with open(self.syspath / "trigger_right_max","w") as fparam:
-                fparam.write(f"{self.trigger_right_max}")
-            with open(self.syspath / "update_params","w") as fparam:
-                fparam.write(f"{self.update_params}")
+            for param in self.PARAM_NAMES:
+                with open(self.syspath / param, "w") as f:
+                    f.write(str(getattr(self, param)))
         except IOError as e:
             print(f"I/O error({e.errno}): {e.strerror}")
             exit(1)
